@@ -27,7 +27,7 @@ body {
 .grain {
   position: fixed; inset: 0; width: 100%; height: 100%;
   image-rendering: pixelated; pointer-events: none; z-index: 100;
-  opacity: 0.09; mix-blend-mode: overlay;
+  opacity: var(--grain, 0.09); mix-blend-mode: overlay;
 }
 
 /* ---------- Page 1: password ---------- */
@@ -78,9 +78,6 @@ body {
 }
 
 .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 5; }
-
-/* ---------- Page 2 placeholder ---------- */
-.stage__note { margin: 0; padding: 0 1.5rem; text-align: center; font-style: italic; font-size: 1.2rem; color: var(--dim); }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.01ms !important; }

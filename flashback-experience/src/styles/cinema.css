@@ -1,0 +1,110 @@
+/* ===================== Page 2: the cinematic stage ===================== */
+.cinema {
+  position: fixed; inset: 0; overflow: hidden;
+  height: 100vh; height: 100dvh;          /* dvh: correct height while mobile browser bars move */
+  background: var(--black);
+  --split: 0;                             /* red/blue text split, animated by chromatic + glitch */
+  touch-action: manipulation;
+  user-select: none; -webkit-user-select: none;
+}
+.cinema--center { display: grid; place-content: center; justify-items: center; gap: 1.6rem; padding: 1.5rem; }
+
+.stage-root { position: absolute; inset: 0; }
+.camera { position: absolute; inset: 0; will-change: transform; }
+
+/* .ov = "overscan": 6% bigger than the screen so shakes and zooms never show the edges */
+.ov { position: absolute; left: -6%; top: -6%; width: 112%; height: 112%; pointer-events: none; }
+.bg { background: var(--black); }
+.slot { opacity: 0; isolation: isolate; will-change: transform, opacity; }
+.slot img, .shard img, .chroma-ch img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center; display: block;
+  user-select: none; -webkit-user-drag: none;
+}
+.chroma-ch { position: absolute; inset: 0; mix-blend-mode: screen; isolation: isolate; will-change: transform; }
+.chroma-img { mix-blend-mode: multiply; }
+.shards { overflow: hidden; }
+.shard { position: absolute; inset: 0; will-change: transform, opacity; }
+.crack-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.burn { opacity: 0; }                     /* low-res canvas scaled up by the browser: soft edges */
+.overlay, .dark { opacity: 0; }
+.dark { background: #000; }
+
+/* ---------- text ---------- */
+.text-layer { position: absolute; inset: 0; display: grid; pointer-events: none; }
+.cue-box {
+  grid-area: 1 / 1; display: flex; justify-content: center; align-items: center; text-align: center;
+  padding: max(1.25rem, env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right))
+           max(1.25rem, env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left));
+}
+.cue-box--top    { align-items: flex-start; padding-top: max(12vh, env(safe-area-inset-top)); }
+.cue-box--upper  { align-items: flex-start; padding-top: max(22vh, env(safe-area-inset-top)); }
+.cue-box--lower  { align-items: flex-end;   padding-bottom: max(14vh, env(safe-area-inset-bottom)); }
+.cue-box--bottom { align-items: flex-end;   padding-bottom: max(7vh, env(safe-area-inset-bottom)); }
+
+.cue {
+  margin: 0; opacity: 0; max-width: min(40rem, 100%);
+  overflow-wrap: anywhere; text-wrap: balance;          /* long words / lines can never overflow */
+  color: var(--ink); line-height: 1.35; will-change: transform, opacity;
+  --a: calc(var(--split) * 0.12);
+  text-shadow:
+    calc(var(--split) * -1px) 0 rgba(255, 40, 80, var(--a)),
+    calc(var(--split) * 1px) 0 rgba(60, 220, 255, var(--a)),
+    0 2px 22px rgba(0, 0, 0, 0.85);
+}
+.w, .c { display: inline-block; }
+.w { white-space: nowrap; }
+.cue--caption { font-weight: 300; font-size: clamp(1.2rem, min(4.2vw, 6vh), 2.2rem); letter-spacing: 0.04em; }
+.cue--whisper { font-weight: 300; font-style: italic; color: #9fb0b8; font-size: clamp(1.05rem, min(3.6vw, 5.2vh), 1.8rem); letter-spacing: 0.14em; }
+.cue--title   { font-weight: 500; text-transform: uppercase; font-size: clamp(1.3rem, min(5vw, 7.5vh), 2.8rem); letter-spacing: 0.34em; padding-left: 0.34em; }
+.cue--impact  { font-weight: 500; text-transform: uppercase; color: #fff; font-size: clamp(2rem, min(12vw, 17vh), 6.4rem); letter-spacing: 0.06em; line-height: 1.05; }
+
+/* ---------- screen layers ---------- */
+.vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.72) 100%);
+}
+.vignette--pulse { opacity: 0; background: radial-gradient(ellipse at center, transparent 18%, rgba(0, 0, 0, 0.95) 100%); }
+.fx-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.fx-blackout { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; }
+
+/* ---------- loading + start ---------- */
+.loading, .start {
+  position: absolute; inset: 0; z-index: 20; background: var(--black);
+  display: grid; place-content: center; justify-items: center; gap: 1.4rem; padding: 1.5rem; text-align: center;
+}
+.loading--overlay { background: rgba(5, 5, 6, 0.86); }
+.loading__text { margin: 0; font-size: 1.05rem; letter-spacing: 0.42em; padding-left: 0.42em; color: var(--dim); font-weight: 500; }
+.start { gap: 0.4rem; }
+.start__button {
+  background: none; border: 0; padding: 0.9rem 1.8rem; cursor: pointer;
+  color: var(--ink); font: 500 clamp(1rem, 4.8vw, 1.25rem) var(--font); letter-spacing: 0.3em; padding-left: calc(1.8rem + 0.3em); white-space: nowrap;
+  transition: color 0.4s;
+}
+.start__button:hover { color: #fff; }
+.start__button:focus-visible, .controls button:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+.start__line { display: block; width: min(15rem, 60%); height: 1px; background: var(--accent); opacity: 0.7; transform-origin: center; }
+.start__hint { margin: 1.6rem 0 0; max-width: 20rem; font-size: 0.95rem; font-style: italic; color: var(--dim); }
+
+/* ---------- controls ---------- */
+.controls {
+  position: absolute; z-index: 30; left: 0; right: 0;
+  bottom: env(safe-area-inset-bottom); padding: 0.6rem 1rem 1rem;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.2rem 0.6rem;
+  transition: opacity 0.6s;
+}
+.controls[data-visible='false'] { opacity: 0; pointer-events: none; }  /* still reachable by Tab; focus shows it */
+.controls:focus-within { opacity: 1; pointer-events: auto; }
+.controls button {
+  background: none; border: 0; cursor: pointer; padding: 0.7rem 0.9rem; min-height: 44px;   /* comfortable touch target */
+  color: var(--dim); font: 500 0.82rem var(--font); letter-spacing: 0.3em;
+  transition: color 0.3s;
+}
+.controls button:hover { color: var(--ink); }
+.controls--ended { bottom: 0; top: 0; align-items: center; background: transparent; padding: 0; }
+.controls--ended[data-visible='false'] { opacity: 1; pointer-events: auto; }
+.controls--ended button { font-size: 1.1rem; color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .controls { transition-duration: 0.01ms; }
+}

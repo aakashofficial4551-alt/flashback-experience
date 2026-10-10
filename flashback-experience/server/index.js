@@ -3,6 +3,7 @@ import express from 'express';
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { scenes, settings } from '../src/data/scenes.js';
 
 try { process.loadEnvFile(); } catch { /* no .env file: use real environment variables */ }
 
@@ -57,6 +58,25 @@ app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
 app.get('/api/session', (req, res) => res.json({ ok: validToken(readCookie(req, COOKIE)) }));
 
+// Everything below this helper is only for logged-in visitors.
+const requireAuth = (req, res, next) =>
+  validToken(readCookie(req, COOKIE)) ? next() : res.status(401).json({ ok: false });
+
+// The scene config (your text, timing, media paths) is NOT inside the public JavaScript bundle:
+// it is sent only after the password was accepted.
+const functionsInConfig = [];
+JSON.stringify({ settings, scenes }, (key, value) => {
+  if (typeof value === 'function') functionsInConfig.push(key);
+  return value;
+});
+if (functionsInConfig.length) {
+  console.warn(`src/data/scenes.js contains functions (${functionsInConfig.join(', ')}). They cannot be sent to the browser; use a name from src/data/customEffects.js instead.`);
+}
+app.get('/api/scenes', requireAuth, (_req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ settings, scenes });
+});
+
 app.post('/api/auth', (req, res) => {
   if (tooMany(req.ip)) return res.status(429).json({ ok: false, error: 'slow-down' });
   const ok = typeof req.body?.password === 'string' && safeEqual(req.body.password, FLASHBACK_PASSWORD);
@@ -71,6 +91,9 @@ app.post('/api/auth', (req, res) => {
 
 if (isProd) {
   const dist = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'dist');
+  // Local media is served only to logged-in visitors (Cloudinary / CDN URLs stay public by nature).
+  app.use('/media', requireAuth, (_req, res, next) => { res.set('Cache-Control', 'private, max-age=3600'); next(); },
+    express.static(path.join(dist, 'media')));
   app.use(express.static(dist));
   app.use((_req, res) => res.sendFile(path.join(dist, 'index.html'))); // SPA fallback
 }

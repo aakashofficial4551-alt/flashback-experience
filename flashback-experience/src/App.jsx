@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Grain from './components/Grain.jsx';
 import PasswordScreen from './components/PasswordScreen.jsx';
 import FlashbackExperience from './components/FlashbackExperience.jsx';
@@ -8,6 +8,7 @@ import FlashbackExperience from './components/FlashbackExperience.jsx';
 // 'unlocked' -> Page 2 (experience)
 export default function App() {
   const [stage, setStage] = useState('checking');
+  const relock = useCallback(() => setStage('locked'), []); // login expired while on Page 2
 
   useEffect(() => {
     fetch('/api/session')
@@ -19,7 +20,7 @@ export default function App() {
   return (
     <>
       {stage === 'locked' && <PasswordScreen onSuccess={() => setStage('unlocked')} />}
-      {stage === 'unlocked' && <FlashbackExperience />}
+      {stage === 'unlocked' && <FlashbackExperience onSessionExpired={relock} />}
       <Grain />
     </>
   );

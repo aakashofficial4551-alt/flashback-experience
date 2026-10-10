@@ -31,6 +31,9 @@ export default function PasswordScreen({ onSuccess }) {
 
   useEffect(() => () => gsap.killTweensOf([form.current, flash.current]), []);
 
+  // The input is disabled while checking; give focus back when it is enabled again.
+  useEffect(() => { if (!busy) input.current?.focus(); }, [busy]);
+
   const wrong = (msg) => {
     setError(msg);
     setBusy(false);
